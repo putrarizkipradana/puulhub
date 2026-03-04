@@ -1,42 +1,44 @@
--- [[ PUULHUB V5 - SIDEBAR EDITION ]] --
--- Fitur: Auto-AFK (Default ON), Speed, Jump, Shop Info
+-- [[ PUULHUB V5.1 - STABLE VERSION ]] --
+-- Fitur: Auto-AFK ON, Speed, Jump, Shop Sidebar
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "PuulHub | Grow a Garden", HidePremium = false, SaveConfig = false, IntroText = "Memuat PuulStore..."})
 
--- [[ FUNGSI ANTI-AFK ]] --
--- Dibuat agar langsung berjalan otomatis (Auto-ON)
+-- Pastikan Window dibuat dengan benar
+local Window = OrionLib:MakeWindow({
+    Name = "PuulHub | Grow a Garden", 
+    HidePremium = false, 
+    SaveConfig = false, 
+    IntroText = "PuulStore Loading...",
+    IntroIcon = "rbxassetid://4483345998"
+})
+
+-- AUTO ANTI-AFK (Langsung Aktif)
 local function StartAntiAfk()
     local vu = game:GetService("VirtualUser")
     game:GetService("Players").LocalPlayer.Idled:Connect(function()
         vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
         task.wait(1)
         vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        print("PuulHub: Anti-AFK Aktif Otomatis.")
     end)
 end
-
--- Menjalankan Anti-AFK saat script di-execute
 StartAntiAfk()
 
--- [[ TAB 1: UTAMA ]] --
+-- TAB 1: UTAMA
 local MainTab = Window:MakeTab({
 	Name = "Utama",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
+	Icon = "rbxassetid://4483345998"
 })
 
-MainTab:AddParagraph("Status System", "Anti-AFK: OTOMATIS AKTIF (ON)")
+MainTab:AddParagraph("Status System", "Anti-AFK: OTOMATIS AKTIF")
 
--- [[ TAB 2: KARAKTER ]] --
+-- TAB 2: KARAKTER
 local CharTab = Window:MakeTab({
 	Name = "Karakter",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
+	Icon = "rbxassetid://4483345998"
 })
 
 CharTab:AddSlider({
-	Name = "WalkSpeed (Kecepatan)",
+	Name = "WalkSpeed",
 	Min = 16,
 	Max = 300,
 	Default = 16,
@@ -49,7 +51,7 @@ CharTab:AddSlider({
 })
 
 CharTab:AddSlider({
-	Name = "JumpPower (Lompatan)",
+	Name = "JumpPower",
 	Min = 50,
 	Max = 300,
 	Default = 50,
@@ -61,25 +63,23 @@ CharTab:AddSlider({
 	end    
 })
 
--- [[ TAB 3: SHOP ]] --
+-- TAB 3: SHOP
 local ShopTab = Window:MakeTab({
 	Name = "Shop",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
+	Icon = "rbxassetid://4483345998"
 })
 
-ShopTab:AddLabel("Selamat datang di PuulStore")
 ShopTab:AddButton({
 	Name = "Copy Link Toko Eldorado",
 	Callback = function()
-		setclipboard("https://www.eldorado.gg/users/PuulStore") -- Sesuaikan link toko kamu
+		setclipboard("https://www.eldorado.gg/users/PuulStore")
 		OrionLib:MakeNotification({
-			Name = "Berhasil!",
-			Content = "Link toko telah disalin ke clipboard.",
-			Image = "rbxassetid://4483345998",
-			Time = 5
+			Name = "PuulStore",
+			Content = "Link disalin!",
+			Time = 3
 		})
 	end    
 })
 
+-- WAJIB DI AKHIR SKRIP
 OrionLib:Init()
