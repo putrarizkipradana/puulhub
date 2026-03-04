@@ -1,85 +1,91 @@
--- [[ PUULHUB V5.1 - STABLE VERSION ]] --
+-- [[ PUULHUB V5.2 - RAYFIELD EDITION ]] --
 -- Fitur: Auto-AFK ON, Speed, Jump, Shop Sidebar
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Pastikan Window dibuat dengan benar
-local Window = OrionLib:MakeWindow({
-    Name = "PuulHub | Grow a Garden", 
-    HidePremium = false, 
-    SaveConfig = false, 
-    IntroText = "PuulStore Loading...",
-    IntroIcon = "rbxassetid://4483345998"
+local Window = Rayfield:CreateWindow({
+   Name = "PuulHub | Grow a Garden",
+   LoadingTitle = "Menyiapkan PuulStore...",
+   LoadingSubtitle = "by putrarizkipradana",
+   ConfigurationSaving = {
+      Enabled = false
+   },
+   KeySystem = false
 })
 
--- AUTO ANTI-AFK (Langsung Aktif)
-local function StartAntiAfk()
+-- [[ AUTO ANTI-AFK SYSTEM ]] --
+-- Fitur ini langsung berjalan tanpa perlu ditekan
+task.spawn(function()
     local vu = game:GetService("VirtualUser")
     game:GetService("Players").LocalPlayer.Idled:Connect(function()
         vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
         task.wait(1)
         vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
     end)
-end
-StartAntiAfk()
+end)
 
--- TAB 1: UTAMA
-local MainTab = Window:MakeTab({
-	Name = "Utama",
-	Icon = "rbxassetid://4483345998"
+-- [[ TAB UTAMA ]] --
+local MainTab = Window:CreateTab("Utama", 4483362458) 
+
+MainTab:CreateSection("Informasi Skrip")
+
+MainTab:CreateLabel("Anti-AFK: OTOMATIS AKTIF ✅")
+MainTab:CreateLabel("Versi: 5.2 (Stable)")
+
+-- [[ TAB KARAKTER ]] --
+local CharTab = Window:CreateTab("Karakter", 4483362458)
+
+CharTab:CreateSlider({
+   Name = "WalkSpeed (Kecepatan)",
+   Range = {16, 300},
+   Increment = 1,
+   Suffix = " Speed",
+   CurrentValue = 16,
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
 })
 
-MainTab:AddParagraph("Status System", "Anti-AFK: OTOMATIS AKTIF")
-
--- TAB 2: KARAKTER
-local CharTab = Window:MakeTab({
-	Name = "Karakter",
-	Icon = "rbxassetid://4483345998"
+CharTab:CreateSlider({
+   Name = "JumpPower (Lompatan)",
+   Range = {50, 300},
+   Increment = 1,
+   Suffix = " Power",
+   CurrentValue = 50,
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+   end,
 })
 
-CharTab:AddSlider({
-	Name = "WalkSpeed",
-	Min = 16,
-	Max = 300,
-	Default = 16,
-	Color = Color3.fromRGB(255,255,255),
-	Increment = 1,
-	ValueName = "Speed",
-	Callback = function(Value)
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-	end    
+CharTab:CreateButton({
+   Name = "Reset Karakter",
+   Callback = function()
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+      game.Players.LocalPlayer.Character.Humanoid.JumpPower = 50
+   end,
 })
 
-CharTab:AddSlider({
-	Name = "JumpPower",
-	Min = 50,
-	Max = 300,
-	Default = 50,
-	Color = Color3.fromRGB(255,255,255),
-	Increment = 1,
-	ValueName = "Power",
-	Callback = function(Value)
-		game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-	end    
+-- [[ TAB SHOP ]] --
+local ShopTab = Window:CreateTab("Shop", 4483362458)
+
+ShopTab:CreateSection("PuulStore Marketplace")
+
+ShopTab:CreateButton({
+   Name = "Salin Link Toko Eldorado",
+   Callback = function()
+      setclipboard("https://www.eldorado.gg/users/PuulStore")
+      Rayfield:Notify({
+         Title = "PuulStore",
+         Content = "Link berhasil disalin ke clipboard!",
+         Duration = 5,
+         Image = 4483362458,
+      })
+   end,
 })
 
--- TAB 3: SHOP
-local ShopTab = Window:MakeTab({
-	Name = "Shop",
-	Icon = "rbxassetid://4483345998"
+Rayfield:Notify({
+   Title = "PuulHub Aktif!",
+   Content = "Selamat datang di toko PuulStore, silakan gunakan fitur yang tersedia.",
+   Duration = 5,
+   Image = 4483362458,
 })
-
-ShopTab:AddButton({
-	Name = "Copy Link Toko Eldorado",
-	Callback = function()
-		setclipboard("https://www.eldorado.gg/users/PuulStore")
-		OrionLib:MakeNotification({
-			Name = "PuulStore",
-			Content = "Link disalin!",
-			Time = 3
-		})
-	end    
-})
-
--- WAJIB DI AKHIR SKRIP
-OrionLib:Init()
