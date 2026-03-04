@@ -1,50 +1,47 @@
--- [[ PUULHUB MODERN UI - MOBILE OPTIMIZED ]] --
--- Dibuat untuk PuulStore
+-- [[ PUULHUB V4 - GROW A GARDEN SPECIAL ]] --
+-- Optimized for Mobile & Bypass Basics
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "PuulHub v3 | Mobile Edition",
-   LoadingTitle = "Menyiapkan Antarmuka...",
+   Name = "PuulHub | Grow a Garden Edition",
+   LoadingTitle = "Menyiapkan Script...",
    LoadingSubtitle = "oleh PuulStore",
-   ConfigurationSaving = {
-      Enabled = false
-   },
-   KeySystem = false -- Kita matikan agar langsung masuk
+   ConfigurationSaving = { Enabled = false },
+   KeySystem = false 
 })
 
--- Tab Utama
-local MainTab = Window:CreateTab("Utama", 4483362458) 
+local Tab = Window:CreateTab("Movement", 4483362458)
 
--- Pengaturan Kecepatan (Slider Besar untuk Jari)
-MainTab:CreateSlider({
-   Name = "Kecepatan Lari (WalkSpeed)",
+-- Fitur WalkSpeed dengan sistem Auto-Refresh (Bypass)
+local targetSpeed = 16
+Tab:CreateSlider({
+   Name = "Kecepatan Lari (Safe Speed: 20-50)",
    Range = {16, 300},
    Increment = 1,
    Suffix = " Speed",
    CurrentValue = 16,
    Callback = function(Value)
-      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+      targetSpeed = Value
    end,
 })
 
--- Pengaturan Lompatan
-MainTab:CreateSlider({
-   Name = "Tinggi Lompatan (JumpPower)",
-   Range = {50, 300},
-   Increment = 1,
-   Suffix = " Power",
-   CurrentValue = 50,
-   Callback = function(Value)
-      game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-   end,
-})
+-- Loop untuk memastikan Speed tetap aktif (Berdasarkan logika skrip yang kamu kirim)
+task.spawn(function()
+    while task.wait(0.1) do
+        pcall(function()
+            local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.WalkSpeed ~= targetSpeed then
+                hum.WalkSpeed = targetSpeed
+            end
+        end)
+    end
+end)
 
--- Tab AFK
-local AfkTab = Window:NewTab("Anti-AFK", 4483362458)
-
+-- Fitur Anti-AFK (Penting untuk nunggu tanaman tumbuh)
+local AfkTab = Window:CreateTab("Utility", 4483362458)
 AfkTab:CreateToggle({
-   Name = "Aktifkan Mode Anti-AFK",
+   Name = "Anti-Kick (Anti-AFK)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AntiAfk = Value
@@ -53,15 +50,13 @@ AfkTab:CreateToggle({
          vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
          task.wait(1)
          vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-         task.wait(60) -- Cukup cek setiap 1 menit agar hemat baterai HP
+         task.wait(60)
       end
    end,
 })
 
--- Tombol Sembunyikan UI yang Ramah Mobile
 Rayfield:Notify({
-   Title = "PuulHub Aktif!",
-   Content = "Gunakan tombol di pojok untuk menyembunyikan menu.",
+   Title = "PuulHub Loaded!",
+   Content = "Gunakan speed dengan bijak agar tidak terdeteksi pemain lain.",
    Duration = 5,
-   Image = 4483362458,
 })
