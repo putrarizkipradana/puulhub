@@ -1,62 +1,85 @@
--- [[ PUULHUB V4 - GROW A GARDEN SPECIAL ]] --
--- Optimized for Mobile & Bypass Basics
+-- [[ PUULHUB V5 - SIDEBAR EDITION ]] --
+-- Fitur: Auto-AFK (Default ON), Speed, Jump, Shop Info
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "PuulHub | Grow a Garden", HidePremium = false, SaveConfig = false, IntroText = "Memuat PuulStore..."})
 
-local Window = Rayfield:CreateWindow({
-   Name = "PuulHub | Grow a Garden Edition",
-   LoadingTitle = "Menyiapkan Script...",
-   LoadingSubtitle = "oleh PuulStore",
-   ConfigurationSaving = { Enabled = false },
-   KeySystem = false 
+-- [[ FUNGSI ANTI-AFK ]] --
+-- Dibuat agar langsung berjalan otomatis (Auto-ON)
+local function StartAntiAfk()
+    local vu = game:GetService("VirtualUser")
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        print("PuulHub: Anti-AFK Aktif Otomatis.")
+    end)
+end
+
+-- Menjalankan Anti-AFK saat script di-execute
+StartAntiAfk()
+
+-- [[ TAB 1: UTAMA ]] --
+local MainTab = Window:MakeTab({
+	Name = "Utama",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
 })
 
-local Tab = Window:CreateTab("Movement", 4483362458)
+MainTab:AddParagraph("Status System", "Anti-AFK: OTOMATIS AKTIF (ON)")
 
--- Fitur WalkSpeed dengan sistem Auto-Refresh (Bypass)
-local targetSpeed = 16
-Tab:CreateSlider({
-   Name = "Kecepatan Lari (Safe Speed: 20-50)",
-   Range = {16, 300},
-   Increment = 1,
-   Suffix = " Speed",
-   CurrentValue = 16,
-   Callback = function(Value)
-      targetSpeed = Value
-   end,
+-- [[ TAB 2: KARAKTER ]] --
+local CharTab = Window:MakeTab({
+	Name = "Karakter",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
 })
 
--- Loop untuk memastikan Speed tetap aktif (Berdasarkan logika skrip yang kamu kirim)
-task.spawn(function()
-    while task.wait(0.1) do
-        pcall(function()
-            local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.WalkSpeed ~= targetSpeed then
-                hum.WalkSpeed = targetSpeed
-            end
-        end)
-    end
-end)
-
--- Fitur Anti-AFK (Penting untuk nunggu tanaman tumbuh)
-local AfkTab = Window:CreateTab("Utility", 4483362458)
-AfkTab:CreateToggle({
-   Name = "Anti-Kick (Anti-AFK)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AntiAfk = Value
-      while _G.AntiAfk do
-         local vu = game:GetService("VirtualUser")
-         vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-         task.wait(1)
-         vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-         task.wait(60)
-      end
-   end,
+CharTab:AddSlider({
+	Name = "WalkSpeed (Kecepatan)",
+	Min = 16,
+	Max = 300,
+	Default = 16,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Speed",
+	Callback = function(Value)
+		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+	end    
 })
 
-Rayfield:Notify({
-   Title = "PuulHub Loaded!",
-   Content = "Gunakan speed dengan bijak agar tidak terdeteksi pemain lain.",
-   Duration = 5,
+CharTab:AddSlider({
+	Name = "JumpPower (Lompatan)",
+	Min = 50,
+	Max = 300,
+	Default = 50,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Power",
+	Callback = function(Value)
+		game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+	end    
 })
+
+-- [[ TAB 3: SHOP ]] --
+local ShopTab = Window:MakeTab({
+	Name = "Shop",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+ShopTab:AddLabel("Selamat datang di PuulStore")
+ShopTab:AddButton({
+	Name = "Copy Link Toko Eldorado",
+	Callback = function()
+		setclipboard("https://www.eldorado.gg/users/PuulStore") -- Sesuaikan link toko kamu
+		OrionLib:MakeNotification({
+			Name = "Berhasil!",
+			Content = "Link toko telah disalin ke clipboard.",
+			Image = "rbxassetid://4483345998",
+			Time = 5
+		})
+	end    
+})
+
+OrionLib:Init()
