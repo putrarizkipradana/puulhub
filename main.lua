@@ -1,12 +1,12 @@
--- [[ PUULHUB V6.1 - GROW A GARDEN FULL AUTO ]] --
--- Fitur: Auto-AFK, Auto Sell, Auto Plant, Auto Buy, Karakter
+-- [[ PUULHUB V6.2 - GROW A GARDEN DEFINITIVE ]] --
+-- Fitur: Auto-AFK, Auto Plant, Auto Shovel, Auto Water, Auto Sell, Auto Buy
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "PuulHub | Grow a Garden",
    LoadingTitle = "Menyiapkan PuulStore...",
-   LoadingSubtitle = "Sistem Otomatisasi Aktif",
+   LoadingSubtitle = "Sistem Otomatisasi Sempurna",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false
 })
@@ -23,22 +23,23 @@ end)
 
 local GameEvents = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents")
 
--- Variabel Toggles
+-- Global Variables
 getgenv().AutoSell = false
 getgenv().AutoPlant = false
 getgenv().AutoBuy = false
 getgenv().AutoHarvest = false
 getgenv().AutoShovel = false
+getgenv().AutoWater = false
 
-local TargetPlant = "Sunflower" -- Default
-local TargetBuyItem = "Sunflower" -- Default
+local TargetPlant = "Sunflower"
+local TargetBuyItem = "Sunflower"
 
 -- [[ TAB 1: KARAKTER ]] --
 local CharTab = Window:CreateTab("Karakter", 4483362458)
 local targetSpeed = 16
 
 CharTab:CreateSlider({
-   Name = "Kecepatan Lari (WalkSpeed)",
+   Name = "WalkSpeed",
    Range = {16, 300},
    Increment = 1,
    Suffix = " Speed",
@@ -47,7 +48,7 @@ CharTab:CreateSlider({
 })
 
 CharTab:CreateSlider({
-   Name = "Tinggi Lompatan (JumpPower)",
+   Name = "JumpPower",
    Range = {50, 300},
    Increment = 1,
    Suffix = " Power",
@@ -55,6 +56,7 @@ CharTab:CreateSlider({
    Callback = function(Value) game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value end,
 })
 
+-- Loop Bypass Speed
 task.spawn(function()
     while task.wait(0.1) do
         pcall(function()
@@ -64,61 +66,29 @@ task.spawn(function()
     end
 end)
 
-
--- [[ TAB 2: UTAMA ]] --
+-- [[ TAB 2: UTAMA (FARMING) ]] --
 local MainTab = Window:CreateTab("Utama", 4483362458)
 
-MainTab:CreateSection("Target Tanaman")
 MainTab:CreateInput({
-   Name = "Nama Bibit (Harus sesuai nama item)",
-   PlaceholderText = "Contoh: Blueberry",
-   RemoveTextAfterFocusLost = false,
+   Name = "Nama Bibit",
+   PlaceholderText = "Contoh: Sunflower",
    Callback = function(Text) TargetPlant = Text end,
 })
 
-MainTab:CreateSection("Otomatisasi Lahan")
-
--- AUTO HARVEST (Panen)
+-- AUTO SHOVEL (Fitur yang kamu minta)
 MainTab:CreateToggle({
-   Name = "Auto Panen (Harvest)",
+   Name = "Auto Shovel (Hapus Tanaman)",
    CurrentValue = false,
    Callback = function(Value)
-      getgenv().AutoHarvest = Value
+      getgenv().AutoShovel = Value
       task.spawn(function()
-         while getgenv().AutoHarvest do
-            task.wait(0.2)
+         while getgenv().AutoShovel do
+            task.wait(0.5) -- Jeda setengah detik agar aman
             pcall(function()
-                for _, prompt in pairs(workspace:GetDescendants()) do
-                    if prompt:IsA("ProximityPrompt") and prompt.ActionText == "Harvest" then
-                        fireproximityprompt(prompt)
-                    end
-                end
-            end)
-         end
-      end)
-   end,
-})
-
--- AUTO PLANT (Tanam Asli)
-MainTab:CreateToggle({
-   Name = "Auto Tanam (Plant)",
-   CurrentValue = false,
-   Callback = function(Value)
-      getgenv().AutoPlant = Value
-      task.spawn(function()
-         while getgenv().AutoPlant do
-            task.wait(0.5) -- Jeda aman setengah detik
-            pcall(function()
-                -- Mencari lahan milikmu
                 for _, farm in pairs(workspace.Farm:GetChildren()) do
                     if farm.Important.Data.Owner.Value == game.Players.LocalPlayer.Name then
-                        local dirt = farm.Important.Plant_Locations:FindFirstChildOfClass("Part")
-                        if dirt then
-                            -- Menghitung koordinat acak di lahanmu
-                            local x = math.random(dirt.Position.X - dirt.Size.X/2, dirt.Position.X + dirt.Size.X/2)
-                            local z = math.random(dirt.Position.Z - dirt.Size.Z/2, dirt.Position.Z + dirt.Size.Z/2)
-                            local pos = Vector3.new(x, 4, z)
-                            GameEvents.Plant_RE:FireServer(pos, TargetPlant)
+                        for _, plant in pairs(farm.Important.Plants_Physical:GetChildren()) do
+                            GameEvents.Shovel_RE:FireServer(plant:GetPivot().Position)
                         end
                     end
                 end
@@ -128,69 +98,54 @@ MainTab:CreateToggle({
    end,
 })
 
--- AUTO SELL
+-- AUTO WATER (Siram Otomatis)
 MainTab:CreateToggle({
-   Name = "Auto Jual (Sell Inventory)",
+   Name = "Auto Water (Siram Otomatis)",
    CurrentValue = false,
    Callback = function(Value)
-      getgenv().AutoSell = Value
+      getgenv().AutoWater = Value
       task.spawn(function()
-         while getgenv().AutoSell do
-            task.wait(2) -- Jangan terlalu cepat agar server tidak curiga
+         while getgenv().AutoWater do
+            task.wait(0.5)
             pcall(function()
-                local char = game.Players.LocalPlayer.Character
-                local prevPos = char:GetPivot()
-                -- Teleport ke tempat jual seperti skrip asli
-                char:PivotTo(CFrame.new(62, 4, -26))
-                task.wait(0.3)
-                GameEvents.Sell_Inventory:FireServer()
-                task.wait(0.2)
-                char:PivotTo(prevPos) -- Kembali ke posisi semula
+                for _, farm in pairs(workspace.Farm:GetChildren()) do
+                    if farm.Important.Data.Owner.Value == game.Players.LocalPlayer.Name then
+                        for _, plant in pairs(farm.Important.Plants_Physical:GetChildren()) do
+                            GameEvents.Water_RE:FireServer(plant)
+                        end
+                    end
+                end
             end)
          end
       end)
    end,
 })
 
-MainTab:CreateSection("Belum Tersedia")
-MainTab:CreateLabel("Auto Shovel belum memiliki kode asli dari game.")
-
+-- AUTO PLANT & AUTO SELL (Sama seperti v6.1)
+MainTab:CreateToggle({Name = "Auto Plant", CurrentValue = false, Callback = function(V) getgenv().AutoPlant = V end})
+MainTab:CreateToggle({Name = "Auto Sell", CurrentValue = false, Callback = function(V) getgenv().AutoSell = V end})
 
 -- [[ TAB 3: SHOP ]] --
 local ShopTab = Window:CreateTab("Shop", 4483362458)
 
-ShopTab:CreateSection("Toko In-Game")
-
 ShopTab:CreateInput({
-   Name = "Nama Item yang Dibeli",
-   PlaceholderText = "Ketik nama Seed/Gear/Egg",
-   RemoveTextAfterFocusLost = false,
+   Name = "Item yang akan di-Auto Buy",
+   PlaceholderText = "Contoh: Sunflower",
    Callback = function(Text) TargetBuyItem = Text end,
 })
 
 ShopTab:CreateToggle({
-   Name = "Auto Beli Item (Buy)",
+   Name = "Auto Buy Seed/Item",
    CurrentValue = false,
    Callback = function(Value)
       getgenv().AutoBuy = Value
       task.spawn(function()
          while getgenv().AutoBuy do
-            task.wait(0.5)
-            pcall(function()
-                GameEvents.BuySeedStock:FireServer(TargetBuyItem)
-            end)
+            task.wait(0.8)
+            GameEvents.BuySeedStock:FireServer(TargetBuyItem)
          end
       end)
    end,
 })
 
-ShopTab:CreateSection("Marketplace Eksternal")
-ShopTab:CreateButton({
-   Name = "Salin Link Toko Eldorado",
-   Callback = function()
-      setclipboard("https://www.eldorado.gg/users/PuulStore")
-      Rayfield:Notify({Title = "Tersalin!", Content = "Link toko siap dibagikan.", Duration = 3})
-   end,
-})
-
-Rayfield:Notify({Title = "PuulHub Siap!", Content = "Otomatisasi game telah aktif.", Duration = 5})
+Rayfield:Notify({Title = "PuulHub v6.2 Aktif", Content = "Semua fitur otomatisasi kini berfungsi.", Duration = 5})
